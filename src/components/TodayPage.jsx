@@ -6,7 +6,7 @@ import { periodWithClock, placeOf, scheduleOn, timeRange } from '../lib/schedule
 const WD = ['', '週一', '週二', '週三', '週四', '週五', '週六', '週日'];
 const MONTH_DAY = (s) => `${Number(s.slice(5, 7))}月${Number(s.slice(8, 10))}日`;
 
-export default function TodayPage({ courses, tasks, settings, onOpenCourse }) {
+export default function TodayPage({ courses, tasks, settings, onOpenCourse, onEditTask }) {
   const today = todayStr();
   const w = weekOf(today, settings.semesterStart);
   const wd = weekdayToday();
@@ -59,7 +59,7 @@ export default function TodayPage({ courses, tasks, settings, onOpenCourse }) {
           <h2 className="section-label">TASKS</h2>
           <ul className="task-list">
             {due.map((t) => (
-              <TaskRow key={t.id} task={t} courseName={courseName(t.courseId)} />
+              <TaskRow key={t.id} task={t} courseName={courseName(t.courseId)} onEdit={() => onEditTask?.(t)} />
             ))}
           </ul>
         </section>
@@ -83,13 +83,17 @@ export default function TodayPage({ courses, tasks, settings, onOpenCourse }) {
   );
 }
 
-export function TaskRow({ task, courseName }) {
+export function TaskRow({ task, courseName, onEdit }) {
   const toggle = () => db.tasks.update(task.id, { completed: !task.completed });
   return (
     <li className={task.completed ? 'task-row is-done' : 'task-row'}>
-      <button className="task-row__check" onClick={toggle} aria-label="完成" />
-      <div className="task-row__body">
-        <span className="task-row__title">{task.title}</span>
+      <button className="task-row__check" onClick={toggle} aria-label={task.completed ? '取消完成' : '完成'} />
+      <div className="task-row__body" onClick={onEdit} role={onEdit ? 'button' : undefined}>
+        <span className="task-row__title">
+          {task.priority === 2 && <i className="task-row__flag task-row__flag--urgent" title="緊急">急</i>}
+          {task.priority === 1 && <i className="task-row__flag" title="重要" />}
+          {task.title}
+        </span>
         <span className="task-row__meta">
           {courseName && <>{courseName} · </>}
           {task.dueDate ? `Due ${MONTH_DAY(task.dueDate)}` : ''}

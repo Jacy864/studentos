@@ -4,7 +4,7 @@ import { TaskRow } from './TodayPage';
 
 const WD = ['', '週一', '週二', '週三', '週四', '週五', '週六', '週日'];
 
-export default function CourseSheet({ course, tasks, settings, onClose }) {
+export default function CourseSheet({ course, tasks, settings, onClose, onEditCourse, onEditTask }) {
   if (!course) return null;
   const courseTasks = tasks.filter((t) => t.courseId === course.id);
 
@@ -13,6 +13,7 @@ export default function CourseSheet({ course, tasks, settings, onClose }) {
       <div className="sheet" role="dialog" aria-label={course.name} onClick={(e) => e.stopPropagation()}>
         <button className="sheet__close" onClick={onClose} aria-label="關閉">×</button>
         <h2 className="sheet__title">{course.name}</h2>
+        <button className="btn btn-ghost sheet__edit" onClick={() => onEditCourse(course)}>編輯課程</button>
 
         <dl className="sheet__meta">
           <div><dt>教師</dt><dd>{course.teacher || '··'}</dd></div>
@@ -39,7 +40,7 @@ export default function CourseSheet({ course, tasks, settings, onClose }) {
           <p className="quiet-note">這門課還沒有任務。</p>
         ) : (
           <ul className="task-list">
-            {courseTasks.map((t) => <TaskRow key={t.id} task={t} />)}
+            {courseTasks.map((t) => <TaskRow key={t.id} task={t} onEdit={() => onEditTask?.(t)} />)}
           </ul>
         )}
       </div>

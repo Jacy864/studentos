@@ -52,3 +52,35 @@ export function bandOf(period) {
 }
 
 export const BAND_LABELS = ['上午 1–4', '下午前 5–6', '下午後 7–8', '晚間 9–12'];
+
+// ——— 衝突檢測（§6.4：學校系統不做的，我們做）———
+// 同 weekday × 節次重疊 × 週次區間交集 → 衝突
+
+export function periodsOverlap(a, b) {
+  return a.startPeriod <= b.endPeriod && b.startPeriod <= a.endPeriod;
+}
+
+export function weeksOverlap(a, b) {
+  return a.some((wa) => b.some((wb) => wa.start <= wb.end && wb.start <= wa.end));
+}
+
+export function schedulesConflict(a, b) {
+  return a.weekday === b.weekday && periodsOverlap(a, b) && weeksOverlap(a.weeks, b.weeks);
+}
+
+// 新增/編輯 course 時，找出與「其他課程」衝突的所有組合。
+// exceptCourseId：編輯既有課時排除自己（新課傳 null）
+export function conflictsFor(course, courses, exceptCourseId = null) {
+  const hits = [];
+  for (const other of courses) {
+    if (other.id === course.id || other.id === exceptCourseId) continue;
+    for (const sc of course.schedules || []) {
+      for (const osc of other.schedules) {
+        if (schedulesConflict(sc, osc)) {
+          hits.push({ course: other, sc, osc });
+        }
+      }
+    }
+  }
+  return hits;
+}

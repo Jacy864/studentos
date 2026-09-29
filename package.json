@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "node --test tests/week.test.js tests/roundtrip.test.js"
+    "test": "node --test tests/week.test.js tests/roundtrip.test.js tests/conflict.test.js"
   },
   "dependencies": {
     "dexie": "^4.4.6",

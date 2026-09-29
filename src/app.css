@@ -463,6 +463,372 @@
   background: var(--tiffany-tint);
 }
 
+/* ——— 表單控制項 ——— */
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 10px;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible {
+  outline: 2px solid var(--tiffany);
+  outline-offset: 1px;
+  border-color: var(--tiffany);
+}
+
+.field {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.field-fold {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: 0 12px;
+}
+
+.field-fold summary {
+  padding: 11px 0;
+  font-size: 13px;
+  color: var(--secondary);
+  cursor: pointer;
+  list-style: none;
+}
+
+.field-fold summary::before {
+  content: '+ ';
+  color: var(--tiffany-deep);
+}
+
+.field-fold[open] summary::before {
+  content: '− ';
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 12px;
+  padding: 4px 0 12px;
+}
+
+.field-cell {
+  display: grid;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--secondary);
+}
+
+.field-cell--wide {
+  grid-column: 1 / -1;
+}
+
+.field-cell input,
+.field-cell select {
+  width: 100%;
+}
+
+/* ——— 按鈕 ——— */
+
+.btn {
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 14px;
+  padding: 9px 16px;
+}
+
+.btn-primary {
+  background: var(--coral);
+  border-color: var(--coral);
+  color: #fff;
+}
+
+.btn-primary:disabled {
+  opacity: 0.45;
+}
+
+.btn-ghost {
+  background: transparent;
+}
+
+.file-btn {
+  display: inline-block;
+}
+
+/* ——— 任務優先級標記 ——— */
+
+.task-row__flag {
+  display: inline-block;
+  font-style: normal;
+  font-size: 10px;
+  line-height: 1;
+  padding: 2.5px 4px;
+  border-radius: 4px;
+  margin-right: 6px;
+  vertical-align: 1px;
+  background: var(--tiffany-tint);
+  color: var(--tiffany-deep);
+}
+
+.task-row__flag--urgent {
+  background: var(--coral);
+  color: #fff;
+}
+
+/* ——— Tasks 篩選 chips ——— */
+
+.chip-row {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 2px 0 14px;
+  scrollbar-width: none;
+}
+
+.chip-row::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  flex: none;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--secondary);
+  font-size: 12.5px;
+  border-radius: 999px;
+  padding: 6.5px 13px;
+}
+
+.chip.is-active {
+  background: var(--tiffany-tint);
+  border-color: var(--tiffany);
+  color: var(--tiffany-deep);
+  font-weight: 600;
+}
+
+/* ——— Settings 全屏頁 ——— */
+
+.overlay-page {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: var(--bg);
+  overflow-y: auto;
+  padding: 18px 20px calc(40px + env(safe-area-inset-bottom));
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.overlay-page__head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.overlay-page__head h1 {
+  font-size: 20px;
+  font-weight: 650;
+  margin: 0;
+}
+
+.period-table {
+  display: grid;
+  gap: 6px;
+}
+
+.period-table__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.period-table__label {
+  flex: none;
+  width: 52px;
+  font-size: 13px;
+  color: var(--secondary);
+}
+
+.period-table__row input {
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 13px;
+}
+
+.period-table__dash {
+  color: var(--secondary);
+}
+
+.settings-course-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.settings-course-list__item {
+  display: grid;
+  gap: 1px;
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 12px 4px;
+  font-family: inherit;
+}
+
+.settings-course-list__name {
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.settings-course-list__meta {
+  font-size: 12px;
+  color: var(--secondary);
+}
+
+.settings-note {
+  font-size: 12px;
+  color: var(--secondary);
+  margin-top: 10px;
+  line-height: 1.6;
+}
+
+/* ——— 課程編輯器 ——— */
+
+.sheet-backdrop--center {
+  align-items: center;
+  padding: 16px;
+  z-index: 50;
+}
+
+.sheet--editor {
+  border-radius: 16px;
+  max-height: 88dvh;
+}
+
+.sheet__edit {
+  margin: 0 0 4px 15px;
+  font-size: 12.5px;
+  padding: 5px 10px;
+}
+
+.sheet__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.sheet__actions--start {
+  justify-content: flex-start;
+}
+
+.sc-row {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: 10px;
+  margin-bottom: 8px;
+  display: grid;
+  gap: 8px;
+}
+
+.sc-row__line1 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+}
+
+.sc-row__line1 select {
+  width: 100%;
+  padding: 7px 4px;
+  font-size: 13px;
+}
+
+.sc-row__line2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.sc-row__line2 input {
+  width: 100%;
+  padding: 7px 8px;
+  font-size: 13px;
+}
+
+.sc-row__weeks {
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-row__del {
+  padding: 7px 10px;
+  font-size: 12.5px;
+  color: var(--coral-deep);
+  border-color: var(--coral-tint);
+}
+
+.conflict-box {
+  margin-top: 14px;
+  border: 1px solid var(--coral);
+  background: var(--coral-tint);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.conflict-box b {
+  color: var(--coral-deep);
+}
+
+.conflict-box ul {
+  margin: 8px 0;
+  padding-left: 18px;
+}
+
+.conflict-box p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--secondary);
+}
+
+.task-row__body[role='button'] {
+  cursor: pointer;
+}
+
+/* ——— 右上角設置齒輪 ——— */
+
+.gear {
+  position: fixed;
+  top: calc(14px + env(safe-area-inset-top));
+  right: max(16px, calc(50% - 250px));
+  z-index: 20;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 88%, #fff);
+  color: var(--secondary);
+}
+
 /* ——— 桌面 ≥1200：週網格登場，day view 退場 ——— */
 
 .week-grid {
@@ -472,6 +838,10 @@
 @media (min-width: 1200px) {
   .app {
     max-width: 1160px;
+  }
+
+  .gear {
+    right: calc(50% - 580px);
   }
 
   .day-tabs,
