@@ -2,8 +2,6 @@
 import { useState } from 'react';
 import { TaskRow } from './TodayPage';
 
-const MONTH_DAY = (s) => (s ? `${Number(s.slice(5, 7))}月${Number(s.slice(8, 10))}日` : '');
-
 export default function TasksPage({ courses, tasks, onAddTask, onEditTask }) {
   const [filter, setFilter] = useState('all'); // all | none | courseId
 
