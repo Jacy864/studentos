@@ -34,3 +34,10 @@ export function activeInWeek(weeks, w) {
 export function activeOn(weeks, weekday, w, wd) {
   return weekday === wd && activeInWeek(weeks, w);
 }
+
+// 本地日期字串 +n 天（§10.1：字串運算，不碰 UTC timestamp）
+export function addDays(dateStr, n) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
