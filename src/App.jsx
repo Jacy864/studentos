@@ -11,6 +11,7 @@ import CourseSheet from './components/CourseSheet';
 import TaskSheet from './components/TaskSheet';
 import CourseEditor from './components/CourseEditor';
 import SettingsPage from './components/SettingsPage';
+import PetLayer from './pet/PetLayer.jsx';
 import './app.css';
 
 export default function App() {
@@ -60,6 +61,10 @@ export default function App() {
       </button>
 
       <BottomNav tab={tab} onChange={setTab} />
+
+      {settings.petEnabled !== false && (
+        <PetLayer courses={courses} settings={settings} />
+      )}
 
       <CourseSheet
         course={sheetCourse} tasks={tasks} settings={settings}

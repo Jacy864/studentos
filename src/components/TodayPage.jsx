@@ -84,7 +84,10 @@ export default function TodayPage({ courses, tasks, settings, onOpenCourse, onEd
 }
 
 export function TaskRow({ task, courseName, onEdit }) {
-  const toggle = () => db.tasks.update(task.id, { completed: !task.completed });
+  const toggle = () => {
+    db.tasks.update(task.id, { completed: !task.completed });
+    if (!task.completed) window.dispatchEvent(new CustomEvent('studentos:task-done')); // 螃蟹慶祝（§13.3）
+  };
   return (
     <li className={task.completed ? 'task-row is-done' : 'task-row'}>
       <button className="task-row__check" onClick={toggle} aria-label={task.completed ? '取消完成' : '完成'} />

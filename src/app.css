@@ -829,6 +829,47 @@ button:focus-visible {
   color: var(--secondary);
 }
 
+/* ——— 桌寵螃蟹 ——— */
+
+.pet {
+  position: fixed;
+  left: max(16px, calc(50% - 244px));
+  bottom: calc(92px + env(safe-area-inset-bottom));
+  z-index: 25;
+  pointer-events: none; /* 不擋底下內容（§13.4） */
+  transition: transform 1.2s ease;
+}
+
+.pet__hit {
+  pointer-events: auto; /* 僅蟹身可互動 */
+  touch-action: none; /* 拖拽 */
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: end center;
+  cursor: grab;
+  user-select: none;
+}
+
+.pet__hit:active {
+  cursor: grabbing;
+}
+
+.pet-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--ink);
+  padding: 4px 0;
+}
+
+.pet-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--coral);
+}
+
 /* ——— 桌面 ≥1200：週網格登場，day view 退場 ——— */
 
 .week-grid {
