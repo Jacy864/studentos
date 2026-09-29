@@ -69,16 +69,6 @@ export default function SettingsPage({ courses, settings, onClose, onEditCourse 
       </ul>
       <button className="btn btn-primary" onClick={() => onEditCourse(null)}>+ 新增課程</button>
 
-      <h2 className="section-label">桌寵</h2>
-      <label className="pet-toggle">
-        <input
-          type="checkbox"
-          checked={settings.petEnabled !== false}
-          onChange={(e) => putSettings({ ...settings, petEnabled: e.target.checked })}
-        />
-        <span>住在 app 裡的小螃蟹{settings.petEnabled === false ? '（已休息）' : ''}</span>
-      </label>
-
       <h2 className="section-label">資料</h2>
       <div className="sheet__actions sheet__actions--start">
         <button className="btn btn-ghost" onClick={doExport}>匯出 JSON</button>

@@ -1,4 +1,4 @@
-// 一次性重拍 8 張驗收截圖（最終版含桌寵）。腳本可自行退出。
+// 一次性重拍 6 張驗收截圖。腳本可自行退出。
 // 前置：npm run preview -- --port 4173（dist 已 build）
 import { chromium } from 'playwright';
 
@@ -12,7 +12,6 @@ try {
   const p = await phone.newPage();
   await p.goto(BASE, { timeout: 15000 });
   await p.waitForSelector('.course-card', { timeout: 15000 });
-  await p.waitForSelector('.pet', { timeout: 5000 });
   await p.waitForTimeout(400);
   await p.screenshot({ path: `${OUT}/1-today-mobile.png` });
 
@@ -34,24 +33,7 @@ try {
   await p.click('.sheet__close');
   await p.waitForTimeout(200);
 
-  // 7) 戳螃蟹（回 Today）
-  await p.click('.bottom-nav__item:nth-child(1)');
-  await p.waitForSelector('.pet', { timeout: 5000 });
-  await p.click('.pet__hit');
-  await p.waitForTimeout(150);
-  await p.screenshot({ path: `${OUT}/7-m5-poke.png` });
-  await p.waitForTimeout(800);
-
-  // 8) 慶祝：新增任務並勾掉
-  await p.click('.bottom-nav__item:nth-child(3)');
-  await p.click('.fab');
-  await p.waitForSelector('.sheet input.field', { timeout: 5000 });
-  await p.fill('.sheet input.field', '測試慶祝');
-  await p.click('.sheet .btn-primary');
-  await p.waitForSelector('.task-row:has-text("測試慶祝")', { timeout: 5000 });
-  await p.locator('.task-row__check').first().click();
-  await p.waitForTimeout(200);
-  await p.screenshot({ path: `${OUT}/8-m5-celebrate.png` });
+  // 7–8 桌寵截圖已隨功能移除
   await phone.close();
 
   // 5) 衝突警告（獨立 context）
@@ -81,7 +63,7 @@ try {
   await r.waitForFunction(() => Boolean(navigator.serviceWorker.controller), null, { timeout: 15000 });
   await c3.setOffline(true);
   await r.reload({ timeout: 15000 });
-  await r.waitForSelector('.pet', { timeout: 15000 });
+  await r.waitForSelector('.course-card, .bottom-nav', { timeout: 15000 });
   await r.screenshot({ path: `${OUT}/6-m4-offline.png` });
   await c3.close();
 
@@ -97,4 +79,4 @@ try {
 } finally {
   await browser.close();
 }
-console.log('reshot 8 screenshots →', OUT);
+console.log('reshot 6 screenshots →', OUT);
