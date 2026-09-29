@@ -1,0 +1,42 @@
+/* StudentOS lite — §7.1 色板（與 design/design-tokens.json 同源）+ §7.2 系統字體棧 */
+:root {
+  /* Tiffany 系 — 結構的光：位置與狀態 */
+  --tiffany: #0ABAB5;
+  --tiffany-deep: #089E99;
+  --tiffany-tint: #E3F6F4;
+
+  /* Coral 系 — 情感的光：值得心動一下的地方 */
+  --coral: #DE886D;
+  --coral-deep: #C96A4B;
+  --coral-tint: #F9E9E3;
+
+  /* 暖中性 — 讓 Coral 顯乾淨的底座 */
+  --ink: #221E19;
+  --secondary: #6E6860;
+  --border: #E8E2DA;
+  --bg: #FBF8F4;
+  --surface: #FFFFFF;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, 'HarmonyOS Sans SC', 'MiSans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
