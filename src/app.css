@@ -231,7 +231,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 0 14px;
+  /* 右側讓位給固定定位的齒輪（38px + 間隙），否則「回今天」被蓋住點不到 */
+  padding: 6px 46px 14px 0;
 }
 
 .week-nav__btn {
@@ -892,7 +893,7 @@ button:focus-visible {
   }
 
   .week-nav {
-    padding: 10px 0 18px;
+    padding: 10px 46px 18px 0; /* 桌面齒輪同樣貼欄位右緣，右側留位 */
   }
 
   .week-grid {
