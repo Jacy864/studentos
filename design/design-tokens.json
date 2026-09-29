@@ -1,0 +1,44 @@
+{
+  "$description": "StudentOS lite 設計 tokens — 與 src/index.css 的 CSS variables 同源（§12.1）。改動兩邊必須一起改，scripts/check-tokens.mjs 會校驗。",
+  "color": {
+    "tiffany": { "value": "#0ABAB5", "type": "color", "description": "結構的光：導航 active / selected / focus / 課程標記線" },
+    "tiffanyDeep": { "value": "#089E99", "type": "color" },
+    "tiffanyTint": { "value": "#E3F6F4", "type": "color" },
+    "coral": { "value": "#DE886D", "type": "color", "description": "情感的光：primary action / 緊急 / 慶祝瞬間 / 螃蟹本體" },
+    "coralDeep": { "value": "#C96A4B", "type": "color" },
+    "coralTint": { "value": "#F9E9E3", "type": "color" },
+    "ink": { "value": "#221E19", "type": "color" },
+    "secondary": { "value": "#6E6860", "type": "color" },
+    "border": { "value": "#E8E2DA", "type": "color" },
+    "bg": { "value": "#FBF8F4", "type": "color" },
+    "surface": { "value": "#FFFFFF", "type": "color" }
+  },
+  "dimension": {
+    "radius": {
+      "sm": { "value": "6px", "type": "dimension" },
+      "md": { "value": "10px", "type": "dimension" },
+      "lg": { "value": "16px", "type": "dimension" },
+      "pill": { "value": "999px", "type": "dimension" }
+    },
+    "spacing": {
+      "xs": { "value": "4px", "type": "dimension" },
+      "sm": { "value": "8px", "type": "dimension" },
+      "md": { "value": "12px", "type": "dimension" },
+      "lg": { "value": "18px", "type": "dimension" },
+      "xl": { "value": "28px", "type": "dimension" }
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "sans": { "value": "-apple-system, 'HarmonyOS Sans SC', 'MiSans', 'PingFang SC', 'Microsoft YaHei', sans-serif", "type": "fontFamily" },
+      "serifDate": { "value": "ui-serif, Georgia, 'Songti SC', 'Noto Serif SC', serif", "type": "fontFamily", "description": "Today 大日期用" }
+    },
+    "fontSize": {
+      "display": { "value": "84px", "type": "dimension", "description": "Today 超大日期" },
+      "title": { "value": "20px", "type": "dimension" },
+      "body": { "value": "15px", "type": "dimension" },
+      "secondary": { "value": "13px", "type": "dimension" },
+      "caption": { "value": "11px", "type": "dimension" }
+    }
+  }
+}

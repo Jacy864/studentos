@@ -8,7 +8,10 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "node --test tests/week.test.js tests/roundtrip.test.js tests/conflict.test.js"
+    "test": "node --test tests/week.test.js tests/roundtrip.test.js tests/conflict.test.js",
+    "check:tokens": "node scripts/check-tokens.mjs",
+    "icons": "node scripts/gen-icons.mjs",
+    "verify": "node scripts/m2-verify.mjs && node scripts/m3-verify.mjs && node scripts/m4-verify.mjs"
   },
   "dependencies": {
     "dexie": "^4.4.6",
