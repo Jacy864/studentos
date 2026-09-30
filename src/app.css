@@ -934,3 +934,25 @@ button:focus-visible {
     color: var(--secondary);
   }
 }
+
+/* ——— 螃蟹小裝飾（僅 Today 頁底部，純裝飾） ——— */
+
+.crab-deco {
+  width: 150px;
+  margin: 40px auto 4px;
+  opacity: 0.92;
+  pointer-events: none;
+  user-select: none;
+}
+
+.crab-deco img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (min-width: 1200px) {
+  .crab-deco {
+    width: 176px;
+  }
+}

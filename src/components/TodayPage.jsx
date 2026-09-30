@@ -1,4 +1,5 @@
 // Today — 打開 3 秒內知道今天要幹什麼（§6.1）。安靜日的留白本身就是設計。
+import crabWelcome from '../assets/welcome-crab.svg';
 import { db } from '../lib/db';
 import { addDays, todayStr, weekLabel, weekdayToday, weekOf } from '../lib/week';
 import { periodWithClock, placeOf, scheduleOn, timeRange } from '../lib/schedule';
@@ -79,6 +80,11 @@ export default function TodayPage({ courses, tasks, settings, onOpenCourse, onEd
           </ul>
         </section>
       )}
+
+      {/* 小裝飾：官方歡迎蟹（言指定的靜態素材，純裝飾零互動） */}
+      <div className="crab-deco" aria-hidden="true">
+        <img src={crabWelcome} alt="" draggable={false} />
+      </div>
     </div>
   );
 }
