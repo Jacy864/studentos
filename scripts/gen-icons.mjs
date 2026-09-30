@@ -1,6 +1,6 @@
 // 產生 PWA icons：192 / 512 / maskable-512（透明圓角 + 全出血兩版）
 import { chromium } from 'playwright';
-import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 
 mkdirSync('public/icons', { recursive: true });
 const svg = readFileSync('public/favicon.svg', 'utf8');

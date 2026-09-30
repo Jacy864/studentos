@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { conflictsFor, schedulesConflict, periodsOverlap, weeksOverlap } from '../src/lib/schedule.js';
+import { conflictsFor, periodsOverlap, weeksOverlap } from '../src/lib/schedule.js';
 
 test('節次/週次重疊基礎判定', () => {
   assert.equal(periodsOverlap({ startPeriod: 1, endPeriod: 4 }, { startPeriod: 5, endPeriod: 6 }), false);

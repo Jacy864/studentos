@@ -17,26 +17,24 @@ export default function SchedulePage({ courses, settings, onOpenCourse }) {
     return d >= 1 && d <= 7 ? d : weekdayToday();
   });
 
+  // 學期外（開學前/結束後）週次鉗回邊界，課表自然為空（§3.1）；render 期派生，避免 effect 裡 setState
+  const shownWeek = Math.min(Math.max(week, 1), TOTAL_WEEKS);
+
   // 週/日 → hash + localStorage（僅在 schedule tab 掛載時執行）
   useEffect(() => {
-    rememberSched(week, day);
-  }, [week, day]);
-
-  useEffect(() => {
-    // 學期外（開學前/結束後）週次鉗回邊界，課表自然為空（§3.1）
-    setWeek((w) => Math.min(Math.max(w, 1), TOTAL_WEEKS));
-  }, [currentWeek]);
+    rememberSched(shownWeek, day);
+  }, [shownWeek, day]);
 
   const inc = (d) => setWeek((w) => Math.min(Math.max(w + d, 1), TOTAL_WEEKS));
-  const todays = scheduleOn(courses, day, week);
+  const todays = scheduleOn(courses, day, shownWeek);
 
   return (
     <div className="page page-schedule">
       <header className="week-nav">
-        <button className="week-nav__btn" onClick={() => inc(-1)} disabled={week <= 1} aria-label="上一週">‹</button>
-        <span className="week-nav__label">{weekLabel(week)}</span>
-        <button className="week-nav__btn" onClick={() => inc(1)} disabled={week >= TOTAL_WEEKS} aria-label="下一週">›</button>
-        {week !== currentWeek && (
+        <button className="week-nav__btn" onClick={() => inc(-1)} disabled={shownWeek <= 1} aria-label="上一週">‹</button>
+        <span className="week-nav__label">{weekLabel(shownWeek)}</span>
+        <button className="week-nav__btn" onClick={() => inc(1)} disabled={shownWeek >= TOTAL_WEEKS} aria-label="下一週">›</button>
+        {shownWeek !== currentWeek && (
           <button className="week-nav__today" onClick={() => { setWeek(Math.min(Math.max(currentWeek, 1), TOTAL_WEEKS)); setDay(weekdayToday()); }}>
             回今天
           </button>
@@ -47,7 +45,7 @@ export default function SchedulePage({ courses, settings, onOpenCourse }) {
       <div className="day-tabs" role="tablist">
         {WD_SHORT.slice(1).map((d, i) => {
           const wd = i + 1;
-          const has = scheduleOn(courses, wd, week).length > 0;
+          const has = scheduleOn(courses, wd, shownWeek).length > 0;
           return (
             <button
               key={wd}
@@ -81,7 +79,7 @@ export default function SchedulePage({ courses, settings, onOpenCourse }) {
       </ul>
 
       {/* 桌面：週網格（CSS ≥1200 才顯示） */}
-      <WeekGrid courses={courses} settings={settings} week={week} onOpenCourse={onOpenCourse} />
+      <WeekGrid courses={courses} settings={settings} week={shownWeek} onOpenCourse={onOpenCourse} />
     </div>
   );
 }

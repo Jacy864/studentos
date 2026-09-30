@@ -1,25 +1,10 @@
 // 課程新增/編輯（§6.4 Settings 課程 CRUD），含週次區間編輯與本地衝突檢測
 import { useMemo, useState } from 'react';
 import { db } from '../lib/db';
-import { conflictsFor, weeksLabel } from '../lib/schedule';
+import { conflictsFor, parseWeeks, weeksLabel } from '../lib/schedule';
 
 const WD = ['', '週一', '週二', '週三', '週四', '週五', '週六', '週日'];
 const emptySchedule = () => ({ weekday: 1, startPeriod: 1, endPeriod: 2, weeks: [{ start: 3, end: 17 }], classroom: '', note: '' });
-
-// "3-7, 10-17" → [{start,end}]；容忍全形與頓號
-export function parseWeeks(text) {
-  return String(text)
-    .split(/[,，、]/)
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .map((s) => {
-      const m = s.match(/^(\d+)\s*[-–—~]\s*(\d+)$/);
-      if (m) return { start: Number(m[1]), end: Number(m[2]) };
-      const n = Number(s);
-      return Number.isFinite(n) ? { start: n, end: n } : null;
-    })
-    .filter(Boolean);
-}
 
 export default function CourseEditor({ course, courses, onClose }) {
   const editing = Boolean(course?.id);
@@ -39,7 +24,12 @@ export default function CourseEditor({ course, courses, onClose }) {
   const draft = useMemo(() => ({
     id: course?.id || 'draft',
     name: name.trim(),
-    schedules: schedules.map((sc) => ({ ...sc })),
+    schedules: schedules.map(({ weeksText, ...sc }) => {
+      // 倒置節次自動交換（10 節起、2 節止 → 2–10 節），衝突檢測與入庫同源
+      const startPeriod = Math.min(sc.startPeriod, sc.endPeriod);
+      const endPeriod = Math.max(sc.startPeriod, sc.endPeriod);
+      return { ...sc, startPeriod, endPeriod, weeks: parseWeeks(weeksText) };
+    }),
   }), [course, name, schedules]);
 
   const conflicts = useMemo(
@@ -47,7 +37,13 @@ export default function CourseEditor({ course, courses, onClose }) {
     [draft, courses, editing, course, name],
   );
 
-  const setSc = (i, patch) => setSchedules((list) => list.map((sc, j) => (j === i ? { ...sc, ...patch } : sc)));
+  const setSc = (i, patch) => setSchedules((list) => list.map((sc, j) => {
+    if (j !== i) return sc;
+    const next = { ...sc, ...patch };
+    // 聯動：起點越過終點時把終點拉上來，select 不倒置（draft 清洗是雙保險）
+    if (next.startPeriod > next.endPeriod) next.endPeriod = next.startPeriod;
+    return next;
+  }));
 
   const save = async () => {
     if (!name.trim()) return;
@@ -58,9 +54,7 @@ export default function CourseEditor({ course, courses, onClose }) {
       credits: Number(credits) || 0,
       classroom: classroom.trim() || null,
       department: department.trim() || null,
-      schedules: schedules
-        .map(({ weeksText, ...sc }) => ({ ...sc, weeks: parseWeeks(weeksText) }))
-        .filter((sc) => sc.weeks.length > 0),
+      schedules: draft.schedules.filter((sc) => sc.weeks.length > 0),
     };
     if (conflicts.length > 0 && !showConflict) {
       setShowConflict(true); // 第一步：先警告

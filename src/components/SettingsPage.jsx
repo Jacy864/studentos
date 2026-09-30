@@ -1,5 +1,5 @@
 // Settings（§6.4）：學期起始日 / 節次時刻表 / 課程 CRUD / 匯出匯入
-import { db, exportData, importData, downloadJSON, putSettings } from '../lib/db';
+import { exportData, importData, downloadJSON, putSettings } from '../lib/db';
 import { todayStr } from '../lib/week';
 
 export default function SettingsPage({ courses, settings, onClose, onEditCourse }) {
@@ -15,7 +15,7 @@ export default function SettingsPage({ courses, settings, onClose, onEditCourse 
     try {
       const text = await file.text();
       const data = JSON.parse(text);
-      doExport(); // 覆蓋前強制自動備份（§10.7）
+      await doExport(); // 覆蓋前強制自動備份（§10.7）：先確保備份下載已觸發，再進覆蓋事務
       if (confirm('匯入將全量覆蓋現有資料（已自動下載目前資料的備份）。確定繼續？')) {
         await importData(data);
         alert('匯入完成');

@@ -54,14 +54,18 @@ export async function importData(data) {
     await db.courses.bulkPut(data.courses);
     await db.tasks.bulkPut(data.tasks);
     await db.meta.put({ key: 'settings', value: data.settings });
+    await db.meta.put({ key: 'schemaVersion', value: 1 }); // 與 exportData 的 version 欄位對齊
+    await db.meta.put({ key: 'seeded', value: true }); // 匯入即有數據，免得 ensureSeeded 每次啟動多做一次事務
   });
 }
 
 export function downloadJSON(obj, filename) {
   const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
+  const url = URL.createObjectURL(blob);
+  a.href = url;
   a.download = filename;
   a.click();
-  URL.revokeObjectURL(a.href);
+  // 延遲 revoke：同步 revoke 在 Safari/iOS 可能截斷下載；這是匯出備份的唯一通道，寧可慢 5 秒
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
 }

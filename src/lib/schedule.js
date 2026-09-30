@@ -53,6 +53,25 @@ export function bandOf(period) {
 
 export const BAND_LABELS = ['上午 1–4', '下午前 5–6', '下午後 7–8', '晚間 9–12'];
 
+// "3-7, 10-17" → [{start,end}]；容忍全形與頓號。
+// 倒置（"17-3"）自動交換；非整數或越界（1..TOTAL_WEEKS）的區段丟棄。
+export function parseWeeks(text) {
+  return String(text)
+    .split(/[,，、]/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((s) => {
+      const m = s.match(/^(\d+)\s*[-–—~]\s*(\d+)$/);
+      const [a, b] = m ? [Number(m[1]), Number(m[2])] : [Number(s), Number(s)];
+      if (!Number.isInteger(a) || !Number.isInteger(b)) return null;
+      const start = Math.min(a, b);
+      const end = Math.max(a, b);
+      if (start < 1 || end > TOTAL_WEEKS) return null;
+      return { start, end };
+    })
+    .filter(Boolean);
+}
+
 // ——— 衝突檢測（§6.4：學校系統不做的，我們做）———
 // 同 weekday × 節次重疊 × 週次區間交集 → 衝突
 
