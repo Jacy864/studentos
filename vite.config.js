@@ -29,6 +29,9 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         // SW 預快取由 content hash 處理（§10.4），部署新版自動失效
+        // 註：navigationPreload 實測不適用——它是給 NetworkFirst 導航用的，
+        // 我們的導航由 precache 秒回，加了反而竸爭快取路由（workbox 直接拒絕構建）
+        cleanupOutdatedCaches: true,   // 清掉舊版快取，避免磁盤膨脹
       },
     }),
   ],
