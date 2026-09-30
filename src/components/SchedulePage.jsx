@@ -1,14 +1,26 @@
-// Schedule — 手機 day view + 週次導航；桌面 ≥1200 週網格（§6.2）
+// Schedule — 手機 day view + 週次導航；桌面 ≥1200 週網格（§6.2）。選中的週/日由 lib/uistate 持久化。
 import { useEffect, useState } from 'react';
 import { periodWithClock, placeOf, scheduleOn, timeRange, weeksLabel, bandOf, BAND_LABELS, TOTAL_WEEKS } from '../lib/schedule';
+import { readSched, rememberSched } from '../lib/uistate';
 import { todayStr, weekLabel, weekOf, weekdayToday } from '../lib/week';
 
 const WD_SHORT = ['', '一', '二', '三', '四', '五', '六', '日'];
 
 export default function SchedulePage({ courses, settings, onOpenCourse }) {
   const currentWeek = weekOf(todayStr(), settings.semesterStart);
-  const [week, setWeek] = useState(() => Math.min(Math.max(currentWeek, 1), TOTAL_WEEKS));
-  const [day, setDay] = useState(() => weekdayToday());
+  const [week, setWeek] = useState(() => {
+    const s = readSched();
+    return Math.min(Math.max(s.week || currentWeek, 1), TOTAL_WEEKS);
+  });
+  const [day, setDay] = useState(() => {
+    const d = readSched().day;
+    return d >= 1 && d <= 7 ? d : weekdayToday();
+  });
+
+  // 週/日 → hash + localStorage（僅在 schedule tab 掛載時執行）
+  useEffect(() => {
+    rememberSched(week, day);
+  }, [week, day]);
 
   useEffect(() => {
     // 學期外（開學前/結束後）週次鉗回邊界，課表自然為空（§3.1）

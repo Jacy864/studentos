@@ -1,10 +1,6 @@
-// StudentOS lite — 三個 tab 的外殼（§6）。無 router，但用 URL hash 記住當前 tab（刷新/分享不丟失，§7.3 精神不變）。
-const TABS = ['today', 'schedule', 'tasks'];
-const tabFromHash = () => {
-  const h = location.hash.replace(/^#/, '');
-  return TABS.includes(h) ? h : 'today';
-};
+// StudentOS lite — 三個 tab 的外殼（§6）。無 router；UI 狀態由 lib/uistate 持久化（hash + localStorage）。
 import { useEffect, useState } from 'react';
+import { initialTab, rememberTab } from './lib/uistate';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, ensureSeeded, getSettings } from './lib/db';
 import { SEED } from './lib/seed';
@@ -19,12 +15,13 @@ import SettingsPage from './components/SettingsPage';
 import './app.css';
 
 export default function App() {
-  const [tab, setTab] = useState(tabFromHash);
+  const [tab, setTab] = useState(initialTab);
 
-  // tab → hash（replaceState：不加歷史記錄，不污染返回鍵）
+  // tab → hash + localStorage（replaceState：不加歷史記錄，不污染返回鍵）
   useEffect(() => {
-    history.replaceState(null, '', `#${tab}`);
+    rememberTab(tab);
   }, [tab]);
+
   const [sheetCourse, setSheetCourse] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [taskSheet, setTaskSheet] = useState(null); // null 關 | 'new' 新增 | task 物件 編輯
