@@ -1,6 +1,6 @@
 // StudentOS lite — 三個 tab 的外殼（§6）。無 router；UI 狀態由 lib/uistate 持久化（hash + localStorage）。
 import { useEffect, useState } from 'react';
-import { initialTab, rememberTab } from './lib/uistate';
+import { initialTab, initialSettings, rememberTab } from './lib/uistate';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, ensureSeeded, getSettings } from './lib/db';
 import { SEED } from './lib/seed';
@@ -16,14 +16,14 @@ import './app.css';
 
 export default function App() {
   const [tab, setTab] = useState(initialTab);
+  const [showSettings, setShowSettings] = useState(initialSettings);
 
-  // tab → hash + localStorage（replaceState：不加歷史記錄，不污染返回鍵）
+  // tab + settings → hash + localStorage（replaceState：不加歷史記錄，不污染返回鍵）
   useEffect(() => {
-    rememberTab(tab);
-  }, [tab]);
+    rememberTab(tab, showSettings);
+  }, [tab, showSettings]);
 
   const [sheetCourse, setSheetCourse] = useState(null);
-  const [showSettings, setShowSettings] = useState(false);
   const [taskSheet, setTaskSheet] = useState(null); // null 關 | 'new' 新增 | task 物件 編輯
   const [courseEditor, setCourseEditor] = useState(false); // false 關 | 'new' | course 物件
 

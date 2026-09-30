@@ -3,7 +3,7 @@
 //   localStorage → PWA 從桌面冷啟（start_url 不帶 hash）時還原上次畫面
 export const TABS = ['today', 'schedule', 'tasks'];
 
-const UI_KEY = 'studentos:ui'; // { tab }
+const UI_KEY = 'studentos:ui'; // { tab, settings }（settings = 齒輪頁是否開著）
 const SCHED_KEY = 'studentos:sched'; // { week, day }
 
 const readLS = (k) => {
@@ -21,10 +21,14 @@ export function initialTab() {
   return s && TABS.includes(s.tab) ? s.tab : 'today';
 }
 
-// tab 寫入：LS 永遠寫；hash 在 schedule 時讓權（SchedulePage 會帶 w/d 段寫全，
-// 且子 effect 先於父 effect 執行，這裡若也寫會把段清掉）
-export function rememberTab(tab) {
-  writeLS(UI_KEY, { tab });
+export function initialSettings() {
+  return Boolean(readLS(UI_KEY)?.settings);
+}
+
+// tab 寫入：LS 永遠寫；hash 在 schedule 時讓權給 SchedulePage 帶 w/d 段寫全
+// （子 effect 先於父 effect 執行，這裡若也寫會把段清掉）
+export function rememberTab(tab, settingsOpen = false) {
+  writeLS(UI_KEY, { tab, settings: settingsOpen });
   if (tab !== 'schedule') history.replaceState(null, '', `#${tab}`);
 }
 
@@ -38,9 +42,10 @@ export function readSched() {
   };
 }
 
+// 唯一調用方是 SchedulePage（僅掛載於 schedule tab），無條件寫 hash：
+// 舊版守衛 hash.startsWith('#schedule') 會與 rememberTab 的讓權形成死鎖——
+// 從其他 tab 點進 Schedule 時 hash 仍是舊 tab，導致刷新彈回首頁
 export function rememberSched(week, day) {
   writeLS(SCHED_KEY, { week, day });
-  if (location.hash.startsWith('#schedule')) {
-    history.replaceState(null, '', `#schedule/w${week}/d${day}`);
-  }
+  history.replaceState(null, '', `#schedule/w${week}/d${day}`);
 }
