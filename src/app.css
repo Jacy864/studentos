@@ -935,11 +935,17 @@ button:focus-visible {
   }
 }
 
-/* ——— 螃蟹小裝飾（僅 Today 頁底部，純裝飾） ——— */
+/* ——— 螃蟹小裝飾（僅 Today 頁底部，純裝飾；內容少時沉到視口底，不漂中間） ——— */
+
+.page-today {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - 104px - env(safe-area-inset-bottom));
+}
 
 .crab-deco {
-  width: 150px;
-  margin: 40px auto 4px;
+  width: 208px;
+  margin: auto auto 8px;
   opacity: 0.92;
   pointer-events: none;
   user-select: none;
@@ -953,6 +959,6 @@ button:focus-visible {
 
 @media (min-width: 1200px) {
   .crab-deco {
-    width: 176px;
+    width: 248px;
   }
 }
