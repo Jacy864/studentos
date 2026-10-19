@@ -111,6 +111,16 @@
   color: var(--secondary);
 }
 
+/* 課程卡下掛該課任務（v4 Today：任務跟隨課程，不擠在獨立區） */
+.course-tasks {
+  list-style: none;
+  margin: 6px 0 2px;
+  padding: 2px 0 2px 12px;
+  border-left: 2px dashed var(--border);
+  display: grid;
+  gap: 6px;
+}
+
 /* ——— Tasks ——— */
 
 .task-list {
@@ -320,6 +330,134 @@
 
 .day-list {
   margin-top: 4px;
+}
+
+/* ——— Schedule 視圖切換（日/週）——— */
+
+.view-toggle {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px;
+  background: var(--surface);
+}
+
+.week-nav .view-toggle {
+  margin-left: auto;
+}
+
+.week-nav .week-nav__today + .view-toggle {
+  margin-left: 0;
+}
+
+.view-toggle__btn {
+  border: 0;
+  background: transparent;
+  color: var(--secondary);
+  font-size: 12.5px;
+  font-family: inherit;
+  padding: 5px 14px;
+  border-radius: 999px;
+}
+
+.view-toggle__btn.is-active {
+  background: var(--tiffany-tint);
+  color: var(--tiffany-deep);
+  font-weight: 620;
+}
+
+/* ——— 週總覽（手機）：一天一卡，縱向掃完一週 ——— */
+
+.week-overview {
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.week-overview__day {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 14px 12px;
+}
+
+.week-overview__day.is-empty {
+  opacity: 0.55;
+}
+
+.week-overview__head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  padding: 4px 0 8px;
+  cursor: pointer;
+}
+
+.week-overview__head b {
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.week-overview__head i {
+  font-style: normal;
+  font-size: 12px;
+  color: var(--secondary);
+}
+
+.week-overview__today {
+  font-style: normal;
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--tiffany-deep);
+  background: var(--tiffany-tint);
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+
+.week-overview__none {
+  margin: 0;
+  font-size: 13px;
+  color: var(--secondary);
+}
+
+.week-overview__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.week-overview__item {
+  display: grid;
+  gap: 1px;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-left: 2px solid var(--tiffany);
+  background: var(--tiffany-tint);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-family: inherit;
+}
+
+.week-overview__item b {
+  font-size: 13.5px;
+  font-weight: 620;
+  color: var(--ink);
+}
+
+.week-overview__item i {
+  font-style: normal;
+  font-size: 11.5px;
+  color: var(--secondary);
 }
 
 /* ——— 課程詳情 bottom sheet ——— */
@@ -847,6 +985,8 @@ button:focus-visible {
 
   .day-tabs,
   .day-list,
+  .view-toggle,
+  .week-overview,
   .week-grid__hint {
     display: none;
   }

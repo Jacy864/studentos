@@ -4,6 +4,8 @@ import { initialTab, initialSettings, rememberTab } from './lib/uistate';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, ensureSeeded, getSettings } from './lib/db';
 import { SEED } from './lib/seed';
+import { orderActiveCourses } from './lib/schedule';
+import { todayStr, weekOf } from './lib/week';
 import BottomNav from './components/BottomNav';
 import TodayPage from './components/TodayPage';
 import SchedulePage from './components/SchedulePage';
@@ -33,6 +35,10 @@ export default function App() {
   const tasks = useLiveQuery(() => db.tasks.toArray(), []) || [];
   const settings = useLiveQuery(() => getSettings(), []) || SEED.settings;
 
+  // 任務入口的課程清單（v4）：已結課的剔除（身體 3-7）、進行中最新 block 在前（格物先於英語）。
+  // TasksPage 的篩選 chips 與 TaskSheet 的課程下拉共用，單一來源。
+  const taskCourseOptions = orderActiveCourses(courses, weekOf(todayStr(), settings.semesterStart));
+
   const editingTask = taskSheet && taskSheet !== 'new' ? taskSheet : null;
 
   return (
@@ -49,7 +55,7 @@ export default function App() {
         )}
         {tab === 'tasks' && (
           <TasksPage
-            courses={courses} tasks={tasks}
+            courses={courses} tasks={tasks} courseOptions={taskCourseOptions}
             onAddTask={() => setTaskSheet('new')} onEditTask={setTaskSheet}
           />
         )}
@@ -94,7 +100,7 @@ export default function App() {
       {taskSheet && (
         <TaskSheet
           task={editingTask}
-          courses={courses}
+          courses={taskCourseOptions}
           onClose={() => setTaskSheet(null)}
         />
       )}

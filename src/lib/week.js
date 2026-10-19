@@ -41,3 +41,8 @@ export function addDays(dateStr, n) {
   d.setDate(d.getDate() + n);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
+
+// 第 w 週星期 wd 的日期字串（週總覽標頭顯示「週一 10/19」用）
+export function dateOf(semesterStart, week, weekday) {
+  return addDays(semesterStart, (week - 1) * 7 + (weekday - 1));
+}

@@ -32,20 +32,22 @@ export function rememberTab(tab, settingsOpen = false) {
   if (tab !== 'schedule') history.replaceState(null, '', `#${tab}`);
 }
 
-// { week?, day? }：hash 段優先，其次 LS；都不在交回調用方用當天默認
+// { week?, day?, view? }：hash 段優先，其次 LS；都不在交回調用方用當天默認
+// view 只存 LS 不進 hash —— 深鏈 #schedule/w8/d2 保持語義（週/日），view 是本機偏好
 export function readSched() {
   const [, hw, hd] = hashSegs();
   const s = readLS(SCHED_KEY) || {};
   return {
     week: parseInt(hw?.slice(1), 10) || s.week || null,
     day: parseInt(hd?.slice(1), 10) || s.day || null,
+    view: s.view === 'week' ? 'week' : 'day',
   };
 }
 
 // 唯一調用方是 SchedulePage（僅掛載於 schedule tab），無條件寫 hash：
 // 舊版守衛 hash.startsWith('#schedule') 會與 rememberTab 的讓權形成死鎖——
 // 從其他 tab 點進 Schedule 時 hash 仍是舊 tab，導致刷新彈回首頁
-export function rememberSched(week, day) {
-  writeLS(SCHED_KEY, { week, day });
+export function rememberSched(week, day, view = 'day') {
+  writeLS(SCHED_KEY, { week, day, view });
   history.replaceState(null, '', `#schedule/w${week}/d${day}`);
 }

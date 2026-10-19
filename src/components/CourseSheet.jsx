@@ -1,4 +1,4 @@
-// 課程詳情 bottom sheet（§6.2）：學分/教師/開課單位/時間/週次/地點 + 該課任務
+// 課程詳情 bottom sheet（§6.2）：地點 > 教師 > 學分 > 開課單位（v4：趕課時最急的資訊在最上）+ 時間/週次 + 該課任務
 import { placeOf, periodWithClock, timeRange, weeksLabel } from '../lib/schedule';
 import { TaskRow } from './TodayPage';
 
@@ -7,6 +7,8 @@ const WD = ['', '週一', '週二', '週三', '週四', '週五', '週六', '週
 export default function CourseSheet({ course, tasks, settings, onClose, onEditCourse, onEditTask }) {
   if (!course) return null;
   const courseTasks = tasks.filter((t) => t.courseId === course.id);
+  // 地點摘要：全部 schedules 去重（身體課 = 線上、良渚18號樓118）；未知 → 不造假顯示 ··
+  const places = [...new Set(course.schedules.map((sc) => placeOf(course, sc)).filter(Boolean))];
 
   return (
     <div className="sheet-backdrop" onClick={onClose}>
@@ -16,8 +18,9 @@ export default function CourseSheet({ course, tasks, settings, onClose, onEditCo
         <button className="btn btn-ghost sheet__edit" onClick={() => onEditCourse(course)}>編輯課程</button>
 
         <dl className="sheet__meta">
+          <div><dt>地點</dt><dd>{places.length ? places.join('、') : '··'}</dd></div>
           <div><dt>教師</dt><dd>{course.teacher || '··'}</dd></div>
-          <div><dt>學分</dt><dd>{course.credits?.toFixed(1)}</dd></div>
+          <div><dt>學分</dt><dd>{course.credits != null ? course.credits.toFixed(1) : '··'}</dd></div>
           {course.department && <div><dt>開課單位</dt><dd>{course.department}</dd></div>}
         </dl>
 

@@ -1,4 +1,6 @@
 // Today — 打開 3 秒內知道今天要幹什麼（§6.1）。安靜日的留白本身就是設計。
+// v4：帶課程的任務跟隨該課卡片顯示（英語任務掛英語卡、格物任務掛格物卡），
+// 不再全部擠在 TASKS 區；只有「無課程」或「該課今天沒課」的任務才落回獨立區。
 import crabWelcome from '../assets/welcome-crab.svg';
 import { db } from '../lib/db';
 import { addDays, todayStr, weekLabel, weekdayToday, weekOf } from '../lib/week';
@@ -13,15 +15,20 @@ export default function TodayPage({ courses, tasks, settings, onOpenCourse, onEd
   const wd = weekdayToday();
 
   const todays = scheduleOn(courses, wd, w);
-  const due = tasks
-    .filter((t) => !t.completed && t.dueDate && t.dueDate <= today)
-    .sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || ''));
-  const upcoming = tasks
-    .filter((t) => !t.completed && t.dueDate && t.dueDate > today && t.dueDate <= addDays(today, 7))
+  // 任務池 = 未完成且有期限、期限在今天+7 天內（與原 due/upcoming 口徑一致）
+  const inWindow = tasks
+    .filter((t) => !t.completed && t.dueDate && t.dueDate <= addDays(today, 7))
     .sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+
+  // 跟隨課程：今天有卡的課，其任務掛到卡片下
+  const todaysCourseIds = new Set(todays.map(({ course }) => course.id));
+  const attached = inWindow.filter((t) => t.courseId && todaysCourseIds.has(t.courseId));
+  const attachedIds = new Set(attached.map((t) => t.id));
+  const due = inWindow.filter((t) => t.dueDate <= today && !attachedIds.has(t.id));
+  const upcoming = inWindow.filter((t) => t.dueDate > today && !attachedIds.has(t.id));
   const courseName = (id) => courses.find((c) => c.id === id)?.name;
 
-  const quiet = todays.length === 0 && due.length === 0 && upcoming.length === 0;
+  const quiet = todays.length === 0 && inWindow.length === 0;
 
   return (
     <div className="page page-today">
@@ -39,18 +46,28 @@ export default function TodayPage({ courses, tasks, settings, onOpenCourse, onEd
         <section className="today-block">
           <h2 className="section-label">TODAY</h2>
           <ul className="course-list">
-            {todays.map(({ course, sc }, i) => (
-              <li key={i}>
-                <button className="course-card" onClick={() => onOpenCourse(course)}>
-                  <span className="course-card__time">{periodWithClock(settings, sc)}</span>
-                  <span className="course-card__name">{course.name}</span>
-                  <span className="course-card__meta">
-                    {timeRange(settings, sc)}
-                    {placeOf(course, sc) ? ` · ${placeOf(course, sc)}` : ' · 教室 ··'}
-                  </span>
-                </button>
-              </li>
-            ))}
+            {todays.map(({ course, sc }, i) => {
+              const mine = attached.filter((t) => t.courseId === course.id);
+              return (
+                <li key={i}>
+                  <button className="course-card" onClick={() => onOpenCourse(course)}>
+                    <span className="course-card__time">{periodWithClock(settings, sc)}</span>
+                    <span className="course-card__name">{course.name}</span>
+                    <span className="course-card__meta">
+                      {timeRange(settings, sc)}
+                      {placeOf(course, sc) ? ` · ${placeOf(course, sc)}` : ' · 教室 ··'}
+                    </span>
+                  </button>
+                  {mine.length > 0 && (
+                    <ul className="course-tasks">
+                      {mine.map((t) => (
+                        <TaskRow key={t.id} task={t} onEdit={() => onEditTask?.(t)} />
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}

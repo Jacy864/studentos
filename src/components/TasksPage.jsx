@@ -1,8 +1,10 @@
 // Tasks（§6.3）：未完成在前、已完成在後；分組篩選；FAB 快速新增
+// v4：篩選 chips 用 courseOptions（App 算好：結課剔除、進行中最新在前）；
+// 課名回顯仍查全量 courses —— 已結課課程的歷史任務照常顯示名字。
 import { useState } from 'react';
 import { TaskRow } from './TodayPage';
 
-export default function TasksPage({ courses, tasks, onAddTask, onEditTask }) {
+export default function TasksPage({ courses, courseOptions, tasks, onAddTask, onEditTask }) {
   const [filter, setFilter] = useState('all'); // all | none | courseId
 
   const visible = tasks.filter((t) => {
@@ -17,7 +19,7 @@ export default function TasksPage({ courses, tasks, onAddTask, onEditTask }) {
   const chips = [
     { key: 'all', label: '全部' },
     { key: 'none', label: '無課程' },
-    ...courses.map((c) => ({ key: c.id, label: c.name })),
+    ...courseOptions.map((c) => ({ key: c.id, label: c.name })),
   ];
 
   return (

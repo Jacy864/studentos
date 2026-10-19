@@ -1,10 +1,12 @@
 // Schedule — 手機 day view + 週次導航；桌面 ≥1200 週網格（§6.2）。選中的週/日由 lib/uistate 持久化。
+// v4：手機新增「日/週」切換 —— 週總覽一次看七天，點日期標頭跳進該天 day view。
 import { useEffect, useState } from 'react';
 import { periodWithClock, placeOf, scheduleOn, timeRange, weeksLabel, bandOf, BAND_LABELS, TOTAL_WEEKS } from '../lib/schedule';
 import { readSched, rememberSched } from '../lib/uistate';
-import { todayStr, weekLabel, weekOf, weekdayToday } from '../lib/week';
+import { dateOf, todayStr, weekLabel, weekOf, weekdayToday } from '../lib/week';
 
 const WD_SHORT = ['', '一', '二', '三', '四', '五', '六', '日'];
+const SLASH_MD = (s) => `${Number(s.slice(5, 7))}/${Number(s.slice(8, 10))}`;
 
 export default function SchedulePage({ courses, settings, onOpenCourse }) {
   const currentWeek = weekOf(todayStr(), settings.semesterStart);
@@ -16,14 +18,15 @@ export default function SchedulePage({ courses, settings, onOpenCourse }) {
     const d = readSched().day;
     return d >= 1 && d <= 7 ? d : weekdayToday();
   });
+  const [view, setView] = useState(() => (readSched().view === 'week' ? 'week' : 'day'));
 
   // 學期外（開學前/結束後）週次鉗回邊界，課表自然為空（§3.1）；render 期派生，避免 effect 裡 setState
   const shownWeek = Math.min(Math.max(week, 1), TOTAL_WEEKS);
 
-  // 週/日 → hash + localStorage（僅在 schedule tab 掛載時執行）
+  // 週/日/視圖 → hash + localStorage（僅在 schedule tab 掛載時執行）
   useEffect(() => {
-    rememberSched(shownWeek, day);
-  }, [shownWeek, day]);
+    rememberSched(shownWeek, day, view);
+  }, [shownWeek, day, view]);
 
   const inc = (d) => setWeek((w) => Math.min(Math.max(w + d, 1), TOTAL_WEEKS));
   const todays = scheduleOn(courses, day, shownWeek);
@@ -39,47 +42,115 @@ export default function SchedulePage({ courses, settings, onOpenCourse }) {
             回今天
           </button>
         )}
+        <div className="view-toggle" role="tablist" aria-label="視圖">
+          <button
+            role="tab"
+            aria-selected={view === 'day'}
+            className={view === 'day' ? 'view-toggle__btn is-active' : 'view-toggle__btn'}
+            onClick={() => setView('day')}
+          >
+            日
+          </button>
+          <button
+            role="tab"
+            aria-selected={view === 'week'}
+            className={view === 'week' ? 'view-toggle__btn is-active' : 'view-toggle__btn'}
+            onClick={() => setView('week')}
+          >
+            週
+          </button>
+        </div>
       </header>
 
-      {/* 手機：day tabs */}
-      <div className="day-tabs" role="tablist">
-        {WD_SHORT.slice(1).map((d, i) => {
-          const wd = i + 1;
-          const has = scheduleOn(courses, wd, shownWeek).length > 0;
-          return (
-            <button
-              key={wd}
-              role="tab"
-              aria-selected={day === wd}
-              className={day === wd ? 'day-tabs__item is-active' : 'day-tabs__item'}
-              onClick={() => setDay(wd)}
-            >
-              {d}
-              <i className={has ? 'day-tabs__dot is-on' : 'day-tabs__dot'} />
-            </button>
-          );
-        })}
-      </div>
+      {/* 手機 day view：day tabs + 單日列表 */}
+      {view === 'day' && (
+        <>
+          <div className="day-tabs" role="tablist">
+            {WD_SHORT.slice(1).map((d, i) => {
+              const wd = i + 1;
+              const has = scheduleOn(courses, wd, shownWeek).length > 0;
+              return (
+                <button
+                  key={wd}
+                  role="tab"
+                  aria-selected={day === wd}
+                  className={day === wd ? 'day-tabs__item is-active' : 'day-tabs__item'}
+                  onClick={() => setDay(wd)}
+                >
+                  {d}
+                  <i className={has ? 'day-tabs__dot is-on' : 'day-tabs__dot'} />
+                </button>
+              );
+            })}
+          </div>
 
-      {/* 手機：單日縱向列表 */}
-      <ul className="course-list day-list">
-        {todays.length === 0 && <li className="quiet-note">這天沒課。</li>}
-        {todays.map(({ course, sc }, i) => (
-          <li key={i}>
-            <button className="course-card" onClick={() => onOpenCourse(course)}>
-              <span className="course-card__time">{periodWithClock(settings, sc)}</span>
-              <span className="course-card__name">{course.name}</span>
-              <span className="course-card__meta">
-                {timeRange(settings, sc)}
-                {placeOf(course, sc) ? ` · ${placeOf(course, sc)}` : ' · 教室 ··'}
-              </span>
-            </button>
-          </li>
-        ))}
-      </ul>
+          <ul className="course-list day-list">
+            {todays.length === 0 && <li className="quiet-note">這天沒課。</li>}
+            {todays.map(({ course, sc }, i) => (
+              <li key={i}>
+                <button className="course-card" onClick={() => onOpenCourse(course)}>
+                  <span className="course-card__time">{periodWithClock(settings, sc)}</span>
+                  <span className="course-card__name">{course.name}</span>
+                  <span className="course-card__meta">
+                    {timeRange(settings, sc)}
+                    {placeOf(course, sc) ? ` · ${placeOf(course, sc)}` : ' · 教室 ··'}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {/* 手機 week view：七天縱向總覽，一屏掃完一週 */}
+      {view === 'week' && (
+        <WeekOverview
+          courses={courses}
+          settings={settings}
+          week={shownWeek}
+          currentWeek={currentWeek}
+          onOpenCourse={onOpenCourse}
+          onPickDay={(wd) => { setDay(wd); setView('day'); }}
+        />
+      )}
 
       {/* 桌面：週網格（CSS ≥1200 才顯示） */}
       <WeekGrid courses={courses} settings={settings} week={shownWeek} onOpenCourse={onOpenCourse} />
+    </div>
+  );
+}
+
+function WeekOverview({ courses, settings, week, currentWeek, onOpenCourse, onPickDay }) {
+  return (
+    <div className="week-overview">
+      {WD_SHORT.slice(1).map((d, i) => {
+        const wd = i + 1;
+        const items = scheduleOn(courses, wd, week);
+        const isToday = week === currentWeek && wd === weekdayToday();
+        return (
+          <section className={items.length ? 'week-overview__day' : 'week-overview__day is-empty'} key={wd}>
+            <button className="week-overview__head" onClick={() => onPickDay(wd)} aria-label={`看週${d}的單日課表`}>
+              <b>週{d}</b>
+              <i>{SLASH_MD(dateOf(settings.semesterStart, week, wd))}</i>
+              {isToday && <em className="week-overview__today">今天</em>}
+            </button>
+            {items.length === 0 ? (
+              <p className="week-overview__none">—</p>
+            ) : (
+              <ul className="week-overview__list">
+                {items.map(({ course, sc }, j) => (
+                  <li key={j}>
+                    <button className="week-overview__item" onClick={() => onOpenCourse(course)}>
+                      <b>{course.name}</b>
+                      <i>{periodWithClock(settings, sc)}{placeOf(course, sc) ? ` · ${placeOf(course, sc)}` : ''}</i>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        );
+      })}
     </div>
   );
 }

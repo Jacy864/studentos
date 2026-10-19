@@ -72,6 +72,40 @@ export function parseWeeks(text) {
     .filter(Boolean);
 }
 
+// ——— 課程生命週期（Tasks/Today 用）：結課的不擋路、進行中的最新 block 在前 ———
+// 全部 schedules 週次區間的總跨度；無 schedules → { start: null, end: null }
+export function courseWeekSpan(course) {
+  const starts = [];
+  const ends = [];
+  for (const sc of course.schedules || []) {
+    for (const { start, end } of sc.weeks) { starts.push(start); ends.push(end); }
+  }
+  return { start: starts.length ? Math.min(...starts) : null, end: ends.length ? Math.max(...ends) : null };
+}
+
+// 已結課：最後一週 < 當前週（身體 3-7 於第 8 週起算結課）
+export function isCourseEnded(course, currentWeek) {
+  const { end } = courseWeekSpan(course);
+  return end !== null && end < currentWeek;
+}
+
+// 任務入口的課程排序：剔除已結課 → 進行中按開課週降序（新 block 在前，格物先於英語）
+// → 未開課按開課週升序 appended 在後。start 未知的排進行中末尾。
+export function orderActiveCourses(courses, currentWeek) {
+  const active = [];
+  const future = [];
+  for (const c of courses) {
+    const { start, end } = courseWeekSpan(c);
+    if (end !== null && end < currentWeek) continue; // 結課剔除
+    if (start !== null && start > currentWeek) future.push(c);
+    else active.push(c);
+  }
+  const startOf = (c) => courseWeekSpan(c).start ?? 99;
+  active.sort((a, b) => startOf(b) - startOf(a));
+  future.sort((a, b) => startOf(a) - startOf(b));
+  return [...active, ...future];
+}
+
 // ——— 衝突檢測（§6.4：學校系統不做的，我們做）———
 // 同 weekday × 節次重疊 × 週次區間交集 → 衝突
 
