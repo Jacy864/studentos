@@ -1,14 +1,18 @@
 // Schedule — 手機 day view + 週次導航；桌面 ≥1200 週網格（§6.2）。選中的週/日由 lib/uistate 持久化。
 // v4：手機新增「日/週」切換 —— 週總覽一次看七天，點日期標頭跳進該天 day view。
+// v4.1：任務跟隨課程縮排顯示（默認全部展開）—— day view 掛該課全部未完成任務；
+// 週總覽每門課的任務只掛在本週第一次出現那天，避免一格課重複掛四天。
 import { useEffect, useState } from 'react';
 import { periodWithClock, placeOf, scheduleOn, timeRange, weeksLabel, bandOf, BAND_LABELS, TOTAL_WEEKS } from '../lib/schedule';
 import { readSched, rememberSched } from '../lib/uistate';
 import { dateOf, todayStr, weekLabel, weekOf, weekdayToday } from '../lib/week';
+import { openTasksOf, takeWeekFirst } from '../lib/tasks';
+import { TaskRow } from './TodayPage';
 
 const WD_SHORT = ['', '一', '二', '三', '四', '五', '六', '日'];
 const SLASH_MD = (s) => `${Number(s.slice(5, 7))}/${Number(s.slice(8, 10))}`;
 
-export default function SchedulePage({ courses, settings, onOpenCourse }) {
+export default function SchedulePage({ courses, tasks = [], settings, onOpenCourse, onEditTask }) {
   const currentWeek = weekOf(todayStr(), settings.semesterStart);
   const [week, setWeek] = useState(() => {
     const s = readSched();
@@ -86,18 +90,28 @@ export default function SchedulePage({ courses, settings, onOpenCourse }) {
 
           <ul className="course-list day-list">
             {todays.length === 0 && <li className="quiet-note">這天沒課。</li>}
-            {todays.map(({ course, sc }, i) => (
-              <li key={i}>
-                <button className="course-card" onClick={() => onOpenCourse(course)}>
-                  <span className="course-card__time">{periodWithClock(settings, sc)}</span>
-                  <span className="course-card__name">{course.name}</span>
-                  <span className="course-card__meta">
-                    {timeRange(settings, sc)}
-                    {placeOf(course, sc) ? ` · ${placeOf(course, sc)}` : ' · 教室 ··'}
-                  </span>
-                </button>
-              </li>
-            ))}
+            {todays.map(({ course, sc }, i) => {
+              const mine = openTasksOf(tasks, course.id);
+              return (
+                <li key={i}>
+                  <button className="course-card" onClick={() => onOpenCourse(course)}>
+                    <span className="course-card__time">{periodWithClock(settings, sc)}</span>
+                    <span className="course-card__name">{course.name}</span>
+                    <span className="course-card__meta">
+                      {timeRange(settings, sc)}
+                      {placeOf(course, sc) ? ` · ${placeOf(course, sc)}` : ' · 教室 ··'}
+                    </span>
+                  </button>
+                  {mine.length > 0 && (
+                    <ul className="course-tasks">
+                      {mine.map((t) => (
+                        <TaskRow key={t.id} task={t} onEdit={() => onEditTask?.(t)} />
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </>
       )}
@@ -106,11 +120,13 @@ export default function SchedulePage({ courses, settings, onOpenCourse }) {
       {view === 'week' && (
         <WeekOverview
           courses={courses}
+          tasks={tasks}
           settings={settings}
           week={shownWeek}
           currentWeek={currentWeek}
           onOpenCourse={onOpenCourse}
           onPickDay={(wd) => { setDay(wd); setView('day'); }}
+          onEditTask={onEditTask}
         />
       )}
 
@@ -120,7 +136,9 @@ export default function SchedulePage({ courses, settings, onOpenCourse }) {
   );
 }
 
-function WeekOverview({ courses, settings, week, currentWeek, onOpenCourse, onPickDay }) {
+function WeekOverview({ courses, tasks = [], settings, week, currentWeek, onOpenCourse, onPickDay, onEditTask }) {
+  // 本週每門課的任務只掛第一次出現那天：週一到週日順序掃描，掛過就登記
+  const seenCourseIds = new Set();
   return (
     <div className="week-overview">
       {WD_SHORT.slice(1).map((d, i) => {
@@ -138,14 +156,24 @@ function WeekOverview({ courses, settings, week, currentWeek, onOpenCourse, onPi
               <p className="week-overview__none">—</p>
             ) : (
               <ul className="week-overview__list">
-                {items.map(({ course, sc }, j) => (
-                  <li key={j}>
-                    <button className="week-overview__item" onClick={() => onOpenCourse(course)}>
-                      <b>{course.name}</b>
-                      <i>{periodWithClock(settings, sc)}{placeOf(course, sc) ? ` · ${placeOf(course, sc)}` : ''}</i>
-                    </button>
-                  </li>
-                ))}
+                {items.map(({ course, sc }, j) => {
+                  const mine = takeWeekFirst(tasks, course.id, seenCourseIds);
+                  return (
+                    <li key={j}>
+                      <button className="week-overview__item" onClick={() => onOpenCourse(course)}>
+                        <b>{course.name}</b>
+                        <i>{periodWithClock(settings, sc)}{placeOf(course, sc) ? ` · ${placeOf(course, sc)}` : ''}</i>
+                      </button>
+                      {mine.length > 0 && (
+                        <ul className="course-tasks week-overview__tasks">
+                          {mine.map((t) => (
+                            <TaskRow key={t.id} task={t} onEdit={() => onEditTask?.(t)} />
+                          ))}
+                        </ul>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </section>

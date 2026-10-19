@@ -196,6 +196,76 @@
   color: var(--secondary);
 }
 
+/* v4.1：行內刪除鈕 — 平時極淡，觸摸裝置永遠可點 */
+.task-row__del {
+  flex: none;
+  align-self: flex-start;
+  width: 26px;
+  height: 26px;
+  margin-top: -3px;
+  margin-right: -6px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--secondary);
+  font-size: 17px;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.45;
+}
+
+.task-row__del:active {
+  background: var(--coral-tint, rgba(232, 111, 72, 0.12));
+  color: var(--coral);
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .task-row__del:hover {
+    opacity: 1;
+    color: var(--coral);
+  }
+}
+
+/* 週總覽裡的課程任務：比 day view 更緊湊 */
+.week-overview__tasks {
+  margin: 4px 0 2px;
+  padding-left: 10px;
+  gap: 2px;
+}
+
+.week-overview__tasks .task-row {
+  padding: 5px 2px;
+  border-bottom: 0;
+}
+
+.week-overview__tasks .task-row__title {
+  font-size: 13px;
+}
+
+.week-overview__tasks .task-row__meta {
+  font-size: 11px;
+}
+
+.week-overview__tasks .task-row__check {
+  width: 18px;
+  height: 18px;
+}
+
+.week-overview__tasks .task-row.is-done .task-row__check::after {
+  left: 6px;
+  top: 3px;
+  width: 4px;
+  height: 8px;
+  border-width: 0 2px 2px 0;
+}
+
+.week-overview__tasks .task-row__del {
+  width: 22px;
+  height: 22px;
+  font-size: 15px;
+}
+
 /* ——— Upcoming ——— */
 
 .upcoming-list {

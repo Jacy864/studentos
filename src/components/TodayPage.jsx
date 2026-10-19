@@ -110,6 +110,11 @@ export function TaskRow({ task, courseName, onEdit }) {
   const toggle = () => {
     db.tasks.update(task.id, { completed: !task.completed });
   };
+  // v4.1：行內直接刪——連點誤建多個任務時可以秒清，不用進 sheet 逐個開
+  const remove = (e) => {
+    e.stopPropagation();
+    db.tasks.delete(task.id);
+  };
   return (
     <li className={task.completed ? 'task-row is-done' : 'task-row'}>
       <button className="task-row__check" onClick={toggle} aria-label={task.completed ? '取消完成' : '完成'} />
@@ -124,6 +129,7 @@ export function TaskRow({ task, courseName, onEdit }) {
           {task.dueDate ? `Due ${MONTH_DAY(task.dueDate)}` : ''}
         </span>
       </div>
+      <button className="task-row__del" onClick={remove} aria-label={`刪除任務 ${task.title}`}>×</button>
     </li>
   );
 }

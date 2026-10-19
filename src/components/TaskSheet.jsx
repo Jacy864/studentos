@@ -1,6 +1,7 @@
 // 新增/編輯任務 bottom sheet（§6.3）— 必填只有 title，其餘可選摺疊
 import { useState } from 'react';
 import { db } from '../lib/db';
+import { isRecentDuplicate } from '../lib/tasks';
 
 export default function TaskSheet({ task, courses, onClose }) {
   const editing = Boolean(task);
@@ -8,20 +9,38 @@ export default function TaskSheet({ task, courses, onClose }) {
   const [courseId, setCourseId] = useState(task?.courseId || '');
   const [dueDate, setDueDate] = useState(task?.dueDate || '');
   const [priority, setPriority] = useState(task?.priority ?? 0);
+  const [saving, setSaving] = useState(false);
 
   const save = async () => {
-    if (!title.trim()) return;
-    await db.tasks.put({
-      id: task?.id || crypto.randomUUID(),
+    if (!title.trim() || saving) return;
+    setSaving(true);
+    const draft = {
       title: title.trim(),
       courseId: courseId || null,
       dueDate: dueDate || null,
-      completed: task?.completed ?? false,
-      priority: Number(priority),
-      createdAt: task?.createdAt || new Date().toISOString(),
-      notes: task?.notes || null,
-    });
-    onClose();
+    };
+    try {
+      // v4.1 防手滑：寫庫有延遲時常見「以為沒存上再按一次」→ 連建好幾個。
+      // 10 秒內已有同標題+課程+期限的新任務 → 視為重複，直接關閉。
+      if (!editing) {
+        const existing = await db.tasks.toArray();
+        if (isRecentDuplicate(existing, draft)) {
+          onClose();
+          return;
+        }
+      }
+      await db.tasks.put({
+        id: task?.id || crypto.randomUUID(),
+        ...draft,
+        completed: task?.completed ?? false,
+        priority: Number(priority),
+        createdAt: task?.createdAt || new Date().toISOString(),
+        notes: task?.notes || null,
+      });
+      onClose();
+    } finally {
+      setSaving(false);
+    }
   };
 
   const remove = async () => {
@@ -73,7 +92,9 @@ export default function TaskSheet({ task, courses, onClose }) {
 
         <div className="sheet__actions">
           {editing && <button className="btn btn-ghost" onClick={remove}>刪除</button>}
-          <button className="btn btn-primary" onClick={save} disabled={!title.trim()}>儲存</button>
+          <button className="btn btn-primary" onClick={save} disabled={!title.trim() || saving}>
+            {saving ? '儲存中…' : '儲存'}
+          </button>
         </div>
       </div>
     </div>

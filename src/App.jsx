@@ -51,7 +51,10 @@ export default function App() {
           />
         )}
         {tab === 'schedule' && (
-          <SchedulePage courses={courses} settings={settings} onOpenCourse={setSheetCourse} />
+          <SchedulePage
+            courses={courses} tasks={tasks} settings={settings}
+            onOpenCourse={setSheetCourse} onEditTask={setTaskSheet}
+          />
         )}
         {tab === 'tasks' && (
           <TasksPage
