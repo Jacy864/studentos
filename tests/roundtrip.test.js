@@ -7,7 +7,7 @@ import { db, ensureSeeded, exportData, importData } from '../src/lib/db.js';
 test('seed → 匯出 → 清庫 → 匯入 → 再匯出，資料一致', async () => {
   await ensureSeeded();
   const first = await exportData();
-  assert.equal(first.courses.length, 5, 'seed 應有 5 門課');
+  assert.equal(first.courses.length, 6, 'seed 應有 6 門課（v2 含格物）');
   assert.equal(first.tasks.length, 0);
 
   await db.courses.clear();
