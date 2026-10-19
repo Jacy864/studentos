@@ -31,12 +31,13 @@ export async function ensureSeeded() {
 //  1) 學期起始日 9/7 → 8/31 —— v1 錯把報到/軍訓當教學週起點，週次全系少一（第 7 週顯示成第 6 週）。
 //     只在值仍是錯值 2026-09-07 時改；用戶手動改過其它日期就尊重，不碰。
 //  2) 補形式基礎一（格物）3 班（10/10 正選到手，週 8-13）——只補缺失，不覆蓋用戶已有編輯。
+// v2→v3（2026-10-19）：格物教室補 16號樓104（開課日言實地確認）——只在教室仍為空時填。
 async function migrate() {
   const row = await db.meta.get('schemaVersion');
   const v = row ? row.value : 1; // 沒有版本標記 = v1 老庫
   if (v >= SEED.version) return;
-  if (v < 2) {
-    await db.transaction('rw', db.courses, db.meta, async () => {
+  await db.transaction('rw', db.courses, db.meta, async () => {
+    if (v < 2) {
       const s = await db.meta.get('settings');
       if (s && s.value && s.value.semesterStart === '2026-09-07') {
         await db.meta.put({ key: 'settings', value: { ...s.value, semesterStart: '2026-08-31' } });
@@ -44,9 +45,15 @@ async function migrate() {
       if (!(await db.courses.get(GEWU_COURSE.id))) {
         await db.courses.put(GEWU_COURSE);
       }
-      await db.meta.put({ key: 'schemaVersion', value: 2 });
-    });
-  }
+    }
+    if (v < 3) {
+      const c6 = await db.courses.get(GEWU_COURSE.id);
+      if (c6 && (c6.classroom === null || c6.classroom === undefined)) {
+        await db.courses.put({ ...c6, classroom: GEWU_COURSE.classroom });
+      }
+    }
+    await db.meta.put({ key: 'schemaVersion', value: SEED.version });
+  });
 }
 
 export async function getSettings() {

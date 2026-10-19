@@ -3,11 +3,11 @@
 
 // v2 新增（2026-10-18）：形式基礎一（格物）3 班，10/10 正選到手（autofire.log 實錄）。
 // 排課：週 8-13、週一到週四 1-4 節（與身體課同時段積木輪換，kclb=2 目錄實據）。
-// teacher=郑筱莹（plan.json）；教室/學分未知 → null，不造假。
+// v3 補教室：16號樓104（2026-10-19 開課日言實地確認）；teacher=郑筱莹（plan.json）；學分未知 → null 不造假。
 // 獨立命名導出：老用戶的庫不是空庫，seed 寫不進去，db.js migrate() 用它補課。
 export const GEWU_COURSE = {
   id: 'c6', name: '形式基础一（格物）3班', teacher: '郑筱莹', credits: null,
-  classroom: null, department: '專業基礎教學部',
+  classroom: '16號樓104', department: '專業基礎教學部',
   schedules: [
     { weekday: 1, startPeriod: 1, endPeriod: 4, weeks: [{ start: 8, end: 13 }] },
     { weekday: 2, startPeriod: 1, endPeriod: 4, weeks: [{ start: 8, end: 13 }] },
@@ -17,7 +17,7 @@ export const GEWU_COURSE = {
 };
 
 export const SEED = {
-  version: 2,
+  version: 3,
   settings: {
     // 教學第 1 週 = 2026-08-31（週一）。實證：筆記 9/15（第 3 週週二）已是身體課第一週，
     // 且 9/10 主科輪選課、9/14 上課的時間線吻合；9/7 是報到/軍訓，不是教學週起點（v1 錯值）。

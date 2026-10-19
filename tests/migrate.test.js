@@ -33,16 +33,17 @@ test('v1 老庫遷移：起始日修正 + 補格物課', async () => {
 
   const gewu = await db.courses.get('c6');
   assert.equal(gewu.teacher, '郑筱莹');
+  assert.equal(gewu.classroom, '16號樓104', 'v3 應補格物教室');
   assert.deepEqual(gewu.schedules.map((s) => s.weeks), [
     [{ start: 8, end: 13 }], [{ start: 8, end: 13 }], [{ start: 8, end: 13 }], [{ start: 8, end: 13 }],
   ]);
-  assert.equal((await db.meta.get('schemaVersion')).value, 2);
+  assert.equal((await db.meta.get('schemaVersion')).value, 3);
 });
 
 test('遷移冪等：再跑一次不重複補課', async () => {
   await ensureSeeded();
   assert.equal((await db.courses.toArray()).length, 6, '仍是 6 門，不重複');
-  assert.equal((await db.meta.get('schemaVersion')).value, 2);
+  assert.equal((await db.meta.get('schemaVersion')).value, 3);
 });
 
 test('用戶手改過起始日：遷移不覆蓋', async () => {
@@ -58,4 +59,21 @@ test('用戶已自建格物課：遷移不覆蓋', async () => {
   await db.courses.put({ id: 'c6', name: '我自己建的格物', schedules: [] });
   await ensureSeeded();
   assert.equal((await db.courses.get('c6')).name, '我自己建的格物', '不覆蓋用戶數據');
+});
+
+test('v2 庫 → v3：教室為空才補，已填不覆蓋', async () => {
+  // v2 狀態：6 門課、c6 教室 null
+  await buildV1Db();
+  await ensureSeeded();
+  await db.meta.put({ key: 'schemaVersion', value: 2 });
+  await db.courses.put({ ...(await db.courses.get('c6')), classroom: null });
+
+  await ensureSeeded();
+  assert.equal((await db.courses.get('c6')).classroom, '16號樓104', '空教室應被補上');
+
+  // 用戶自己填過教室 → 不覆蓋
+  await db.meta.put({ key: 'schemaVersion', value: 2 });
+  await db.courses.put({ ...(await db.courses.get('c6')), classroom: '我自己填的' });
+  await ensureSeeded();
+  assert.equal((await db.courses.get('c6')).classroom, '我自己填的', '尊重用戶已填值');
 });
