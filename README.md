@@ -36,6 +36,15 @@ npm run build   # 產物在 dist/，vite base 已設 /studentos/
 
 手機安裝：Chrome 打開網址 → 選單 →「添加到主屏幕 / 安裝應用」。
 
+## 桌面版（Tauri 殼，不受瀏覽器視窗路由影響）
+
+Edge「安裝」的 PWA 本質仍是 Edge 視窗：用 Edge 搜尋或開網站時，新頁面偶爾被路由進 PWA 視窗，它就長出地址欄變成瀏覽器（manifest/SW 管不到 OS 層的視窗調度）。桌面版用 **Tauri + WebView2** 出獨立 exe：自己的視窗、自己的 user-data/IndexedDB（與任何瀏覽器不互通），Edge 的開關、搜尋完全影響不到。
+
+- 構建：GitHub Actions → `Build Tauri Windows app` → Run workflow（或推 `v*` tag），完成後在該 run 的 **Artifacts** 下載 `StudentOS-windows`（NSIS 安裝器 + 綠色 exe）
+- 資料遷移：瀏覽器 PWA → Settings → 匯出 JSON → 桌面版 Settings → 匯入
+- 圖標重生成：`npm run icons:tauri`；本地開發（需 Rust 工具鏈）：`npm run tauri dev`
+- `vite.config.js` 以 `TAURI_ENV*` 區分兩種構建：Tauri 模式關閉 PWA 插件、base 改相對路徑
+
 ## Figma 導入三分鐘
 
 設計稿要「看得見、改得動」，兩條路：

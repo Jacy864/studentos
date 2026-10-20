@@ -11,6 +11,8 @@
     "test": "node --test tests/week.test.js tests/roundtrip.test.js tests/conflict.test.js tests/parse-weeks.test.js tests/migrate.test.js tests/lifecycle.test.js tests/tasks.test.js",
     "check:tokens": "node scripts/check-tokens.mjs",
     "icons": "node scripts/gen-icons.mjs",
+    "icons:tauri": "node scripts/gen-tauri-icons.mjs",
+    "tauri": "tauri",
     "verify": "node scripts/m2-verify.mjs && node scripts/m3-verify.mjs && node scripts/m4-verify.mjs && node scripts/reload-verify.mjs"
   },
   "dependencies": {
@@ -21,6 +23,7 @@
     "vite-plugin-pwa": "^1.3.0"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^2.12.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
